@@ -110,15 +110,10 @@ public:
         //throw("Error copy obj!");
         //cout << "Error in create matrix!\n";
     }
-    ~matrix();
-    ~matrix(){
-        delete[] &rows;
-        delete[] &cols;
-        delete[] &arr;
-    }
+    ~matrix(){};
 
 
-    matrix operator + (matrix &mat_){
+    matrix operator + (const matrix &mat_){
 
         vector<vector<int>> arr_ = arr;
 
@@ -134,7 +129,7 @@ public:
         return out;
     }
 
-    matrix operator - (matrix &mat_){
+    matrix operator - (const matrix &mat_){
         vector<vector<int>> arr_ = arr;
 
         if(rows != mat_.rows or cols != mat_.cols){
@@ -149,24 +144,24 @@ public:
         return out;
     }
 
-    bool operator == (matrix &other){
+    bool operator == (const matrix &other){
         return this->EqMatrix(other);
     }
 
-    void operator = (matrix &other){
+    void operator = (const matrix &other){
         rows = other.rows;
         cols = other.cols;
         arr = other.arr;
     }
 
-    void operator += (matrix &other){
+    void operator += (const matrix &other){
         if(rows != other.rows or cols != other.cols){
             throw("Error: Cannot sum it because matrix have different sizes!");
         }
 
         this->SumMatrix(other);
     }
-    void operator -= (matrix &other){
+    void operator -= (const matrix &other){
         if(rows != other.rows or cols != other.cols){
             throw("Error: Cannot sub it because matrix have different sizes!");
         }
@@ -176,7 +171,7 @@ public:
     void operator *= (int count){
         this->MulNumber(count);
     }
-    void operator *= (matrix &other){
+    void operator *= (const matrix &other){
         if(rows != other.rows or cols != other.cols){
             throw("Error: Cannot mul it because matrix have different sizes!");
         }
@@ -195,7 +190,7 @@ public:
         
         return out;
     }
-    matrix operator * (matrix &mat_){
+    matrix operator * (const matrix &mat_){
         vector<vector<int>> arr_ = arr;
 
         if(rows != mat_.rows or cols != mat_.cols){
@@ -381,6 +376,7 @@ int main(){
     }
 
     matTest.changeMatrix(mat_buff, mat_buff.size(), mat_buff[0].size());
-    matrix buff2 = matTest + matTest;
-    buff2.printMatrix();
+    matrix out = matTest;
+    out += matTest;
+    out.printMatrix();
 }
