@@ -9,7 +9,7 @@ private:
     double** arr;
 
     double** getMinor(double** matrix_, int rows, int cols){
-        int n = sizeof(matrix_) / sizeof(matrix_[0]);
+        int n = sizeof(matrix_[0]) / sizeof(matrix_[0][0]);
         double** out_minor = new double*[n - 1];
         for (int i = 0; i < n - 1; i++){
             out_minor[i] = new double[n - 1];
@@ -32,9 +32,8 @@ private:
 
     double determinant(double**& matrix_){
         int n = sizeof(matrix_) / sizeof(matrix_[0]);
+        int b = sizeof(matrix_[0]) / sizeof(matrix_[0][0]);
 
-        double* test = matrix_[0];
-        int b = sizeof(matrix[0]) / sizeof(test[0]);
         int det = 0;
 
         if(n != b){
@@ -70,8 +69,9 @@ private:
     }
 
     double** getAlgAppend(double** mat_){
-        int n = sizeof(mat_) / sizeof(mat_[0]);
+        int n = sizeof(mat_[0]) / sizeof(mat_[0][0]);
         double** cofactors = new double*[n];
+
         for (int i = 0; i < n; i++){
             cofactors[i] = new double[n - 1];
         }
@@ -347,7 +347,7 @@ int main(){
     matrix matTest = *new matrix();
     
     int a, b;
-    a = 3; b = 2;
+    a = 2; b = 2;
 
     double** matTestArr = new double*[a];
     for (int i = 0; i < a; i++){
@@ -364,5 +364,5 @@ int main(){
 
     matTest.changeMatrix(matTestArr, a, b);
     matTest.printMatrix();
-    matTest.Transpose().printMatrix();
+    matTest = matTest.CalcComplements();
 }
