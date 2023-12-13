@@ -110,9 +110,13 @@ public:
         //throw("Error copy obj!");
         //cout << "Error in create matrix!\n";
     }
+    ~matrix();
     ~matrix(){
-        //delete(this);
-    };
+        delete[] &rows;
+        delete[] &cols;
+        delete[] &arr;
+    }
+
 
     matrix operator + (matrix &mat_){
 
@@ -122,14 +126,10 @@ public:
             throw("Error: Cannot sum it because matrix have different sizes!");
         }
 
-        for(int a = 0; a < cols; a++){
-            for(int b = 0; b < rows; b++){
-                arr_[a][b] += mat_.arr[a][b];
-            }
-        }
-
         matrix out = *new matrix;
         out.changeMatrix(arr_, mat_.rows, mat_.cols);
+
+        out.SumMatrix(mat_);
 
         return out;
     }
@@ -141,21 +141,16 @@ public:
             throw("Error: Cannot sub it because matrix have different sizes!");
         }
 
-        for(int a = 0; a < cols; a++){
-            for(int b = 0; b < rows; b++){
-                arr_[a][b] -= mat_.arr[a][b];
-            }
-        }
         matrix out = *new matrix;
         out.changeMatrix(arr_, rows, cols);
+
+        out.SubMatrix(mat_);
+
         return out;
     }
 
     bool operator == (matrix &other){
-        if(rows == other.rows and cols == other.cols and arr == other.arr){
-            return true;
-        }
-        return false;
+        return this->EqMatrix(other);
     }
 
     void operator = (matrix &other){
@@ -169,47 +164,35 @@ public:
             throw("Error: Cannot sum it because matrix have different sizes!");
         }
 
-        for(int a = 0; a < cols; a++){
-            for(int b = 0; b < rows; b++){
-                arr[a][b] += other.arr[a][b];
-            }
-        }
+        this->SumMatrix(other);
     }
     void operator -= (matrix &other){
         if(rows != other.rows or cols != other.cols){
             throw("Error: Cannot sub it because matrix have different sizes!");
         }
 
-        for(int a = 0; a < cols; a++){
-            for(int b = 0; b < rows; b++){
-                arr[a][b] -= other.arr[a][b];
-            }
-        }
+        this->SubMatrix(other);
+    }
+    void operator *= (int count){
+        this->MulNumber(count);
     }
     void operator *= (matrix &other){
         if(rows != other.rows or cols != other.cols){
             throw("Error: Cannot mul it because matrix have different sizes!");
         }
 
-        for(int a = 0; a < cols; a++){
-            for(int b = 0; b < rows; b++){
-                arr[a][b] *= other.arr[a][b];
-            }
-        }
+        this->MulMatrix(other);
     }
 
     //+ - *int *arr == = += -= *= 
 
     matrix operator * (int count){
         vector<vector<int>> arr_ = arr;
-
-        for(int a = 0; a < cols; a++){
-            for(int b = 0; b < rows; b++){
-                arr_[a][b] *= count;
-            }
-        }
         matrix out = *new matrix;
         out.changeMatrix(arr_, rows, cols);
+
+        out.MulNumber(count);
+        
         return out;
     }
     matrix operator * (matrix &mat_){
@@ -219,14 +202,11 @@ public:
             throw("Error: Cannot exp it because matrix have different sizes!");
         }
 
-        for(int a = 0; a < cols; a++){
-            for(int b = 0; b < rows; b++){
-                arr_[a][b] *= mat_.arr[a][b];
-            }
-        }
-
         matrix out = *new matrix;
         out.changeMatrix(arr_, rows, cols);
+
+        out.MulMatrix(mat_);
+
         return out;
     }
 
@@ -276,7 +256,7 @@ public:
         return false;
     }
 
-    void SumMatrix(const matrix& other){
+    matrix SumMatrix(const matrix& other){
         if(rows != other.rows or cols != other.cols){
             throw("Error: Cannot sum it because matrix have different sizes!");
         }
@@ -286,13 +266,16 @@ public:
                 arr[a][b] += other.arr[a][b];
             }
         }
-        
+
+        matrix out = *new matrix;
+        out.changeMatrix(arr, rows, cols);
+        return out;
     }
 
-    void SubMatrix(const matrix& other){
+    matrix SubMatrix(const matrix& other){
 
         if(rows != other.rows or cols != other.cols){
-            throw("Error: Cannot sub it because matrix have different sizes!");
+            throw("Error: Cannot sub it"); 
         }
 
         for(int a = 0; a < cols; a++){
@@ -300,17 +283,23 @@ public:
                 arr[a][b] -= other.arr[a][b];
             }
         }
+        matrix out = *new matrix;
+        out.changeMatrix(arr, rows, cols);
+        return out;
     }
 
-    void MulNumber(const double num){
+    matrix MulNumber(const double num){
         for(int a = 0; a < cols; a++){
             for(int b = 0; b < rows; b++){
                 arr[a][b] *= num;
             }
         }
+        matrix out = *new matrix;
+        out.changeMatrix(arr, rows, cols);
+        return out;
     }
 
-    void MulMatrix(const matrix& other){
+    matrix MulMatrix(const matrix& other){
         if(rows != other.rows or cols != other.cols){
             throw("Error: Cannot exp it because matrix have different sizes!");
         }
@@ -320,6 +309,10 @@ public:
                 arr[a][b] *= other.arr[a][b];
             }
         }
+
+        matrix out = *new matrix;
+        out.changeMatrix(arr, rows, cols);
+        return out;
     }
 
     matrix Transpose(){
@@ -366,12 +359,8 @@ public:
         out.arr = getAlgAppend(arr);
         //cout << "_2\n";
 
-
-        return out;
-        
+        return out;  
     }
-
-
 };
 
 
@@ -392,6 +381,6 @@ int main(){
     }
 
     matTest.changeMatrix(mat_buff, mat_buff.size(), mat_buff[0].size());
-    matTest *= matTest;
-    matTest.printMatrix();
+    matrix buff2 = matTest + matTest;
+    buff2.printMatrix();
 }
