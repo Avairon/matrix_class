@@ -99,7 +99,12 @@ public:
         cols = other.cols;
         arr = other.arr;
     }
-    ~matrix(){};
+    ~matrix(){
+        for(int a = 0; a < rows; a++){
+            delete[] arr[a];
+        }
+        delete[] arr;
+    };
 
 
     matrix operator + (const matrix &mat_){
@@ -364,5 +369,5 @@ int main(){
 
     matTest.changeMatrix(matTestArr, a, b);
     matTest.printMatrix();
-    matTest = matTest.CalcComplements();
+    matTest.CalcComplements().printMatrix();
 }
