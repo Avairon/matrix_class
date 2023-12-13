@@ -88,7 +88,7 @@ public:
         rows = Rows;
         cols = Cols; 
     }
-    matrix(const matrix& other)//копирование
+    matrix(matrix& other)//копирование
     {
         rows = other.rows;
         //cout << "rowCre\n";
@@ -116,59 +116,104 @@ public:
 
     matrix operator + (matrix &mat_){
 
-        vector<vector<int>> arr_buff;
-        vector<int> arr_buff_buff;
+        vector<vector<int>> arr_ = arr;
 
-        for(int row = 0; row < mat_.rows; row++){
-            for(int col; col < mat_.cols; col++){
-                arr_buff_buff.push_back(0);
-            }
-            arr_buff.push_back(arr_buff_buff);
-            arr_buff_buff.clear();
+        if(rows != mat_.rows or cols != mat_.cols){
+            throw("Error: Cannot sum it because matrix have different sizes!");
         }
-
-        arr = arr_buff;
 
         for(int a = 0; a < cols; a++){
             for(int b = 0; b < rows; b++){
-                arr[a][b] += mat_.arr[a][b];
-                cout << arr[a][b] << " ";
+                arr_[a][b] += mat_.arr[a][b];
             }
-            cout << "\n";
         }
 
         matrix out = *new matrix;
-        out.changeMatrix(arr, mat_.rows, mat_.cols);
+        out.changeMatrix(arr_, mat_.rows, mat_.cols);
 
         return out;
     }
 
     matrix operator - (matrix &mat_){
+        vector<vector<int>> arr_ = arr;
+
         if(rows != mat_.rows or cols != mat_.cols){
             throw("Error: Cannot sub it because matrix have different sizes!");
         }
 
         for(int a = 0; a < cols; a++){
             for(int b = 0; b < rows; b++){
-                arr[a][b] -= mat_.arr[a][b];
+                arr_[a][b] -= mat_.arr[a][b];
             }
         }
         matrix out = *new matrix;
-        out.changeMatrix(arr, rows, cols);
+        out.changeMatrix(arr_, rows, cols);
         return out;
     }
 
-    matrix operator * (int count){
+    bool operator == (matrix &other){
+        if(rows == other.rows and cols == other.cols and arr == other.arr){
+            return true;
+        }
+        return false;
+    }
+
+    void operator = (matrix &other){
+        rows = other.rows;
+        cols = other.cols;
+        arr = other.arr;
+    }
+
+    void operator += (matrix &other){
+        if(rows != other.rows or cols != other.cols){
+            throw("Error: Cannot sum it because matrix have different sizes!");
+        }
+
         for(int a = 0; a < cols; a++){
             for(int b = 0; b < rows; b++){
-                arr[a][b] *= count;
+                arr[a][b] += other.arr[a][b];
+            }
+        }
+    }
+    void operator -= (matrix &other){
+        if(rows != other.rows or cols != other.cols){
+            throw("Error: Cannot sub it because matrix have different sizes!");
+        }
+
+        for(int a = 0; a < cols; a++){
+            for(int b = 0; b < rows; b++){
+                arr[a][b] -= other.arr[a][b];
+            }
+        }
+    }
+    void operator *= (matrix &other){
+        if(rows != other.rows or cols != other.cols){
+            throw("Error: Cannot mul it because matrix have different sizes!");
+        }
+
+        for(int a = 0; a < cols; a++){
+            for(int b = 0; b < rows; b++){
+                arr[a][b] *= other.arr[a][b];
+            }
+        }
+    }
+
+    //+ - *int *arr == = += -= *= 
+
+    matrix operator * (int count){
+        vector<vector<int>> arr_ = arr;
+
+        for(int a = 0; a < cols; a++){
+            for(int b = 0; b < rows; b++){
+                arr_[a][b] *= count;
             }
         }
         matrix out = *new matrix;
-        out.changeMatrix(arr, rows, cols);
+        out.changeMatrix(arr_, rows, cols);
         return out;
     }
     matrix operator * (matrix &mat_){
+        vector<vector<int>> arr_ = arr;
 
         if(rows != mat_.rows or cols != mat_.cols){
             throw("Error: Cannot exp it because matrix have different sizes!");
@@ -176,12 +221,12 @@ public:
 
         for(int a = 0; a < cols; a++){
             for(int b = 0; b < rows; b++){
-                arr[a][b] *= mat_.arr[a][b];
+                arr_[a][b] *= mat_.arr[a][b];
             }
         }
 
         matrix out = *new matrix;
-        out.changeMatrix(arr, rows, cols);
+        out.changeMatrix(arr_, rows, cols);
         return out;
     }
 
@@ -347,4 +392,6 @@ int main(){
     }
 
     matTest.changeMatrix(mat_buff, mat_buff.size(), mat_buff[0].size());
+    matTest *= matTest;
+    matTest.printMatrix();
 }
