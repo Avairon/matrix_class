@@ -1,18 +1,19 @@
 #include <iostream>
-#include <vector>
 
-using std::vector;
 using std::cout;
 using std::cin;
 
 class matrix{
 private:
     int rows; int cols;
-    vector<vector<int>> arr;
+    double** arr;
 
-    vector<vector<int>> getMinor(vector<vector<int>> matrix_, int rows, int cols){
-        int n = matrix_.size();
-        vector<vector<int>> out_minor(n - 1, vector<int>(n - 1));
+    double** getMinor(double** matrix_, int rows, int cols){
+        int n = sizeof(matrix_) / sizeof(matrix_[0]);
+        double** out_minor = new double*[n - 1];
+        for (int i = 0; i < n - 1; i++){
+            out_minor[i] = new double[n - 1];
+        }
 
         if(n == 1) return matrix_;
 
@@ -29,10 +30,11 @@ private:
         return out_minor;
     }
 
-    double determinant(vector<vector<int>>& matrix_){
-        int n = matrix_.size();
-        vector<int> test = matrix_[0];
-        int b = test.size();
+    double determinant(double**& matrix_){
+        int n = sizeof(matrix_) / sizeof(matrix_[0]);
+
+        double* test = matrix_[0];
+        int b = sizeof(matrix[0]) / sizeof(test[0]);
         int det = 0;
 
         if(n != b){
@@ -54,7 +56,7 @@ private:
         else{
             for(int i = 0; i < n; i++){
                 for (int j = 0; j < n; j++){
-                    vector<vector<int>> minor = getMinor(matrix_, i, j);
+                    double** minor = getMinor(matrix_, i, j);
                     int sign = j % 2 ? 1 : -1;
                     det += sign * matrix_[i][j] * determinant(minor);
                 //cout << sign << ":s " << matrix_[i][j] << ":m " << determinant(minor) << ":d" << det << ":det\n";
@@ -67,13 +69,16 @@ private:
         }
     }
 
-    vector<vector<int>> getAlgAppend(vector<vector<int>> mat_){
-        int n = mat_.size();
-        vector<vector<int>> cofactors(n, vector<int>(n));
+    double** getAlgAppend(double** mat_){
+        int n = sizeof(mat_) / sizeof(mat_[0]);
+        double** cofactors = new double*[n];
+        for (int i = 0; i < n; i++){
+            cofactors[i] = new double[n - 1];
+        }
 
         for(int i = 0; i < n; i++){
             for(int j = 0; j < n; j++){
-                vector<vector<int>> minors = getMinor(mat_, i, j);
+                double** minors = getMinor(mat_, i, j);
                 int sign = (i + j) % 2 == 0 ? 1: -1;
                 cofactors[j][i] = int(sign * determinant(minors));
             }
@@ -91,31 +96,15 @@ public:
     matrix(matrix& other)//копирование
     {
         rows = other.rows;
-        //cout << "rowCre\n";
         cols = other.cols;
-        //cout << "colCre\n";
-
-        vector<int> arr_buff_buff;
-
-        for(int row = 0; row < other.rows; row++){
-            for(int col; col < other.cols; col++){
-                arr_buff_buff.push_back(0);
-            }
-            arr.push_back(arr_buff_buff);
-            arr_buff_buff.clear();
-        }
-
         arr = other.arr;
-        //cout << "arrCre\n";
-        //throw("Error copy obj!");
-        //cout << "Error in create matrix!\n";
     }
     ~matrix(){};
 
 
     matrix operator + (const matrix &mat_){
 
-        vector<vector<int>> arr_ = arr;
+        double** arr_ = arr;
 
         if(rows != mat_.rows or cols != mat_.cols){
             throw("Error: Cannot sum it because matrix have different sizes!");
@@ -130,7 +119,7 @@ public:
     }
 
     matrix operator - (const matrix &mat_){
-        vector<vector<int>> arr_ = arr;
+        double** arr_ = arr;
 
         if(rows != mat_.rows or cols != mat_.cols){
             throw("Error: Cannot sub it because matrix have different sizes!");
@@ -182,7 +171,7 @@ public:
     //+ - *int *arr == = += -= *= 
 
     matrix operator * (int count){
-        vector<vector<int>> arr_ = arr;
+        double** arr_ = arr;
         matrix out = *new matrix;
         out.changeMatrix(arr_, rows, cols);
 
@@ -191,7 +180,7 @@ public:
         return out;
     }
     matrix operator * (const matrix &mat_){
-        vector<vector<int>> arr_ = arr;
+        double** arr_ = arr;
 
         if(rows != mat_.rows or cols != mat_.cols){
             throw("Error: Cannot exp it because matrix have different sizes!");
@@ -205,7 +194,7 @@ public:
         return out;
     }
 
-    void changeMatrix(vector<vector<int>> arr_, int Rows, int Cols){
+    void changeMatrix(double** arr_, int Rows, int Cols){
         cols = Cols;
         //cout << "colCre\n";
         rows = Rows;
@@ -220,7 +209,7 @@ public:
     void setCols(int Cols){
         cols = Cols;
     }
-    void setArr(vector<vector<int>> arr_){
+    void setArr(double** arr_){
         arr = arr_;
     }
     int getRows(){
@@ -229,7 +218,7 @@ public:
     int getCols(){
         return cols;
     }
-    vector<vector<int>> getArr(){
+    double** getArr(){
         return arr;
     }
     void printMatrix(){
@@ -313,17 +302,12 @@ public:
     matrix Transpose(){
         matrix out = *new matrix(cols, rows);
 
-        vector<vector<int>> mat_buff;
-        vector<int> mat_buff_buff;
-
-        for(int i = 0; i < rows; i++){
-            for(int i = 0; i < cols; i++){
-                mat_buff_buff.push_back(0);
-            }
-            mat_buff.push_back(mat_buff_buff);
-            mat_buff_buff.clear();
+        double** arrT = new double*[rows];
+        for (int i = 0; i < rows; i++){
+            arrT[i] = new double[cols];
         }
-        out.arr = mat_buff;
+
+        out.arr = arrT;
 
         for(int a = 0; a < rows; a++){
             for(int b = 0; b < cols; b++){
@@ -361,22 +345,24 @@ public:
 
 int main(){
     matrix matTest = *new matrix();
-    vector<vector<int>> mat_buff;
-    vector<int> mat_buff_buff;
+    
+    int a, b;
+    a = 3; b = 2;
 
-    int counter = 1;
-    for(int i = 0; i < 2; i++){
-        for(int i = 0; i < 2; i++){
-            mat_buff_buff.push_back(counter);
-            counter+=1;
-        }
-        counter-=0;
-        mat_buff.push_back(mat_buff_buff);
-        mat_buff_buff.clear();
+    double** matTestArr = new double*[a];
+    for (int i = 0; i < a; i++){
+        matTestArr[i] = new double[b];
     }
 
-    matTest.changeMatrix(mat_buff, mat_buff.size(), mat_buff[0].size());
-    matrix out = matTest;
-    out += matTest;
-    out.printMatrix();
+    int counter = 1;
+    for(int y = 0; y < a; y++){
+        for(int x = 0; x < b; x++){
+            matTestArr[y][x] = counter;
+            counter++;
+        }
+    }
+
+    matTest.changeMatrix(matTestArr, a, b);
+    matTest.printMatrix();
+    matTest.Transpose().printMatrix();
 }
