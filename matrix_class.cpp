@@ -113,7 +113,17 @@ public:
     {
         rows = other.rows;
         cols = other.cols;
-        arr = other.arr;
+
+        arr = new double*[rows];
+        for(int i = 0; i < rows; i++){
+            arr[i] = new double[cols];
+        }
+
+        for(int a = 0; a < rows; a++){
+            for(int b = 0; b < cols; b++){
+                arr[a][b] = other.arr[a][b];
+            }
+        }
     }
     ~matrix(){
         /*
@@ -163,7 +173,15 @@ public:
     void operator = (const matrix &other){
         rows = other.rows;
         cols = other.cols;
-        arr = other.arr;
+        arr = new double*[rows];
+        for(int i = 0; i < rows; i++){
+            arr[i] = new double[cols];
+        }
+        for(int a = 0; a < rows; a++){
+            for(int b = 0; b < cols; b++){
+                arr[a][b] = other.arr[a][b];
+            }
+        }
     }
 
     void operator += (const matrix &other){
