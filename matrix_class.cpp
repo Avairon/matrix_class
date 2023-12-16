@@ -8,12 +8,16 @@ private:
     int rows; int cols;
     double** arr;
 
-    double** getMinor(double** matrix_, int rows, int cols){
-        int n = sizeof(matrix_[0]) / sizeof(matrix_[0][0]);
-        double** out_minor = new double*[n - 1];
+    matrix getMinor(matrix& matrix_, int rows, int cols){
+        int n = matrix_.rows;
+
+        matrix out_minor = *new matrix(n - 1, n - 1);
+
+        /*
+        double** out_minor.arr = new double*[n - 1];
         for (int i = 0; i < n - 1; i++){
-            out_minor[i] = new double[n - 1];
-        }
+            out_minor.arr[i] = new double[n - 1];
+        }*/
 
         if(n == 1) return matrix_;
 
@@ -21,7 +25,7 @@ private:
             if(i == rows) continue;
             for(int j = 0, q = 0; j < n; j++){
                 if(j == cols) continue;
-                out_minor[p][q] = matrix_[i][j];
+                out_minor.arr[p][q] = matrix_.arr[i][j];
                 q++;
             }
             p++;
@@ -30,9 +34,9 @@ private:
         return out_minor;
     }
 
-    double determinant(double**& matrix_){
-        int n = sizeof(matrix_) / sizeof(matrix_[0]);
-        int b = sizeof(matrix_[0]) / sizeof(matrix_[0][0]);
+    double determinant(matrix& matrix_){
+        int n = matrix_.rows;
+        int b = matrix_.cols;
 
         int det = 0;
 
@@ -46,18 +50,19 @@ private:
         }
         else if(n == 1){
             //cout << "deter\n";
-            return matrix_[0][0];
+            return matrix_.arr[0][0];
         }
         else if(n == 2){
             //cout << "deter\n";
-            return (matrix_[0][0] * matrix_[1][1]) - (matrix_[0][1] * matrix_[1][0]); //косяк тут
+            return (matrix_.arr[0][0] * matrix_.arr[1][1]) - (matrix_.arr[0][1] * matrix_.arr[1][0]); //косяк тут
         }
         else{
             for(int i = 0; i < n; i++){
                 for (int j = 0; j < n; j++){
-                    double** minor = getMinor(matrix_, i, j);
+                    matrix minor = *new matrix;
+                    minor = getMinor(matrix_, i, j);
                     int sign = j % 2 ? 1 : -1;
-                    det += sign * matrix_[i][j] * determinant(minor);
+                    det += sign * matrix_.arr[i][j] * determinant(minor);
                 //cout << sign << ":s " << matrix_[i][j] << ":m " << determinant(minor) << ":d" << det << ":det\n";
                 }
             }
@@ -68,19 +73,25 @@ private:
         }
     }
 
-    double** getAlgAppend(double** mat_){
-        int n = sizeof(mat_[0]) / sizeof(mat_[0][0]);
-        double** cofactors = new double*[n];
+    matrix getAlgAppend(matrix& mat_){// передача обьекта вместо массива
+        int n = mat_.rows;
+        
+        matrix cofactors = *new matrix(n, n);
+        cofactors.arr = new double*[n];
 
         for (int i = 0; i < n; i++){
-            cofactors[i] = new double[n - 1];
+            cofactors.arr[i] = new double[n - 1];
         }
+
+        
+
 
         for(int i = 0; i < n; i++){
             for(int j = 0; j < n; j++){
-                double** minors = getMinor(mat_, i, j);
+                matrix minors = *new matrix; 
+                minors = getMinor(mat_, i, j);
                 int sign = (i + j) % 2 == 0 ? 1: -1;
-                cofactors[j][i] = int(sign * determinant(minors));
+                cofactors.arr[j][i] = double(sign * determinant(minors));
             }
         }
         //cout << "alg\n";
@@ -92,6 +103,11 @@ public:
     matrix(int Rows, int Cols){ //конструктор с кол-вом строк и столбцов
         rows = Rows;
         cols = Cols; 
+        arr = new double*[Rows];
+
+        for (int i = 0; i < Rows; i++){
+            arr[i] = new double[Cols];
+        }
     }
     matrix(matrix& other)//копирование
     {
@@ -100,10 +116,12 @@ public:
         arr = other.arr;
     }
     ~matrix(){
+        /*
         for(int a = 0; a < rows; a++){
             delete[] arr[a];
         }
         delete[] arr;
+        */
     };
 
 
@@ -337,10 +355,14 @@ public:
     
     matrix CalcComplements(){
         if(cols != rows) throw("Error: Matrix is not square");
+        matrix in = *new matrix;
+        in.arr = this->arr;
+        in.rows = this->rows;
+        in.cols = this->cols;
 
         matrix out = *new matrix(rows, cols);
         //cout << "_1\n";
-        out.arr = getAlgAppend(arr);
+        out = getAlgAppend(in);
         //cout << "_2\n";
 
         return out;  
@@ -352,7 +374,7 @@ int main(){
     matrix matTest = *new matrix();
     
     int a, b;
-    a = 2; b = 2;
+    a = 3; b = 3;
 
     double** matTestArr = new double*[a];
     for (int i = 0; i < a; i++){
